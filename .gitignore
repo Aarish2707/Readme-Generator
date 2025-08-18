@@ -1,0 +1,17 @@
+# Environment variables
+.env
+application.yml
+
+# IDE
+.idea/
+*.iml
+*.iws
+
+# Build
+# target/
+build/
+frontend/
+
+# OS
+.DS_Store
+Thumbs.db
