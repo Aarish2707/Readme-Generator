@@ -11,7 +11,7 @@ application.yml
 # target/
 build/
 frontend/
-
+target/
 # OS
 .DS_Store
 Thumbs.db
