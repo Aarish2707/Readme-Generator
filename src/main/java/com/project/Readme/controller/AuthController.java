@@ -29,7 +29,7 @@ public class AuthController {
     @Value("${github.client.secret:your_github_client_secret}")
     private String clientSecret;
     
-    @Value("${BASE_URL:http://localhost:8080}")
+    @Value("${BASE_URL:https://readme-generator-h26k.onrender.com}")
     private String baseUrl;
 
     @GetMapping("/github")
