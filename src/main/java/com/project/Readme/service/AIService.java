@@ -67,41 +67,50 @@ public class AIService {
 
 
         try {
-            // ✅ Build request body properly
+            // Build request body according to Gemini API specification
             ObjectNode requestBody = objectMapper.createObjectNode();
             ArrayNode contents = objectMapper.createArrayNode();
             ObjectNode content = objectMapper.createObjectNode();
-            content.put("role", "user");
-
+            
             ArrayNode parts = objectMapper.createArrayNode();
             ObjectNode part = objectMapper.createObjectNode();
             part.put("text", prompt);
             parts.add(part);
-
+            
             content.set("parts", parts);
             contents.add(content);
-
             requestBody.set("contents", contents);
+            
+            // Add generation config to prevent issues
+            ObjectNode generationConfig = objectMapper.createObjectNode();
+            generationConfig.put("temperature", 0.7);
+            generationConfig.put("maxOutputTokens", 8192);
+            requestBody.set("generationConfig", generationConfig);
+            
+            // Debug logging
+            System.out.println("Request body: " + requestBody.toString());
 
-            // ✅ Call Gemini API
             String response = webClient.post()
                     .uri("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey)
                     .header("Content-Type", "application/json")
-                    .bodyValue(requestBody.toString()) // send as raw JSON string
+                    .bodyValue(requestBody)
                     .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            clientResponse -> clientResponse.bodyToMono(String.class)
+                                    .map(errorBody -> new RuntimeException("API Error: " + errorBody)))
                     .bodyToMono(String.class)
                     .block();
 
-            // ✅ Parse response safely
             JsonNode jsonNode = objectMapper.readTree(response);
-
-            if (jsonNode.has("candidates")) {
-                return jsonNode.path("candidates").get(0)
-                        .path("content").path("parts").get(0)
-                        .path("text").asText();
+            
+            if (jsonNode.has("candidates") && jsonNode.get("candidates").size() > 0) {
+                JsonNode candidate = jsonNode.get("candidates").get(0);
+                if (candidate.has("content") && candidate.get("content").has("parts")) {
+                    return candidate.get("content").get("parts").get(0).get("text").asText();
+                }
             }
-
-            return "⚠️ Unexpected response: " + response;
+            
+            return "⚠️ Unexpected response format: " + response;
 
         } catch (Exception e) {
             e.printStackTrace();

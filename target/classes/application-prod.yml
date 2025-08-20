@@ -1,12 +1,12 @@
 server:
-  port: 5000
+  port: 8080
+  address: 0.0.0.0
 
 spring:
-  datasource:
-    url: ${DATABASE_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+  #mongodb configurations
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
   
   jpa:
     hibernate:
@@ -25,3 +25,4 @@ gemini:
 
 jwt:
   secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}

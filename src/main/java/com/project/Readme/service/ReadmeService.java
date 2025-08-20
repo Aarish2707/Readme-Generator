@@ -230,6 +230,7 @@ public class ReadmeService {
             
             String accessToken = user.getAccessToken();
             if (accessToken == null || accessToken.isEmpty()) {
+                System.out.println("No access token found for user: " + githubId);
                 return false;
             }
             
@@ -238,10 +239,35 @@ public class ReadmeService {
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
             headers.setBearerAuth(accessToken);
             headers.set("Accept", "application/vnd.github.v3+json");
+            headers.set("User-Agent", "README-Generator");
             
             org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
             
-            // Get user's owned repositories
+            // First try to get the specific repository to check access
+            try {
+                String repoUrl = "https://api.github.com/repos/" + ownerName + "/" + repoName;
+                org.springframework.http.ResponseEntity<String> repoResponse = restTemplate.exchange(
+                    repoUrl, org.springframework.http.HttpMethod.GET, entity, String.class);
+                
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode repoData = mapper.readTree(repoResponse.getBody());
+                
+                // Check if the authenticated user has push access (owner or collaborator with write access)
+                com.fasterxml.jackson.databind.JsonNode permissions = repoData.path("permissions");
+                if (permissions.has("push") && permissions.path("push").asBoolean()) {
+                    return true;
+                }
+                
+                // Also check if user is the owner
+                String repoOwner = repoData.path("owner").path("login").asText();
+                if (ownerName.equalsIgnoreCase(repoOwner)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                System.out.println("Could not access repository directly: " + e.getMessage());
+            }
+            
+            // Fallback: Get user's owned repositories
             String url = "https://api.github.com/user/repos?type=owner&per_page=100";
             org.springframework.http.ResponseEntity<String> response = restTemplate.exchange(
                 url, org.springframework.http.HttpMethod.GET, entity, String.class);
@@ -263,6 +289,8 @@ public class ReadmeService {
             
             return false;
         } catch (Exception e) {
+            System.out.println("Error checking repository ownership: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
