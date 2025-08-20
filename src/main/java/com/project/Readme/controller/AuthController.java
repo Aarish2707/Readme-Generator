@@ -14,8 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:8080"})
-//@CrossOrigin(origins = {"https://readme-generator-noct.onrender.com"})
+@CrossOrigin(origins = {"http://localhost:8080", "https://readme-generator-h26k.onrender.com"})
 public class AuthController {
 
     @Autowired

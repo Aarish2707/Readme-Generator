@@ -1,6 +1,7 @@
 # Environment variables
 .env
 application.yml
+SecretKeyGenerator.java
 
 # IDE
 .idea/
