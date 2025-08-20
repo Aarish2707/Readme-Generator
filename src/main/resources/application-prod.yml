@@ -5,10 +5,6 @@ server:
   port: 8080
   address: 0.0.0.0
 
-spring:
-  profiles:
-    active: prod
-  
   # MongoDB Atlas Configuration
   # Get connection string from: https://cloud.mongodb.com
   data:
