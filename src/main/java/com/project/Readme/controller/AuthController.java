@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/auth")
-//@CrossOrigin(origins = {"http://localhost:8080"})
-@CrossOrigin(origins = {"https://readme-generator-noct.onrender.com"})
+@CrossOrigin(origins = {"http://localhost:8080"})
+//@CrossOrigin(origins = {"https://readme-generator-noct.onrender.com"})
 public class AuthController {
 
     @Autowired
@@ -80,8 +80,8 @@ public class AuthController {
             // Generate JWT token
             String jwtToken = jwtService.generateToken(githubId);
             
-            // Use Render URL for production, fallback to baseUrl for local development
-            String dashboardUrl = baseUrl.contains("onrender.com") ? baseUrl : "https://readme-generator-noct.onrender.com";
+            // Use configured baseUrl for dashboard redirect
+            String dashboardUrl = baseUrl;
             String redirectUrl = dashboardUrl + "/dashboard?login=" + login + 
                     "&name=" + name + "&avatar=" + avatarUrl + "&githubId=" + githubId + "&token=" + jwtToken;
             System.out.println("Redirecting to: " + redirectUrl);
