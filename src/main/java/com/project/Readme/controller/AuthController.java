@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:8080", "https://readme-generator-eg4f.onrender.com"})
+@CrossOrigin(origins = {"http://localhost:8080"})
 public class AuthController {
 
     @Autowired
@@ -29,7 +29,7 @@ public class AuthController {
     @Value("${github.client.secret:your_github_client_secret}")
     private String clientSecret;
     
-    @Value("${BASE_URL:https://readme-generator-eg4f.onrender.com}")
+    @Value("${BASE_URL:http://localhost:8080}")
     private String baseUrl;
 
     @GetMapping("/github")
