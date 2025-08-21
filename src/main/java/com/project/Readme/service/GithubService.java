@@ -42,6 +42,8 @@ public class GithubService {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(accessToken);
+            headers.set("Accept", "application/vnd.github.v3+json");
+            headers.set("User-Agent", "README-Generator");
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -73,6 +75,9 @@ public class GithubService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
+        headers.set("Accept", "application/vnd.github.v3+json");
+        headers.set("User-Agent", "README-Generator");
+
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         String url = String.format("https://api.github.com/repos/%s/%s", ownerName, repoName);
@@ -107,6 +112,9 @@ public class GithubService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
+        headers.set("Accept", "application/vnd.github.v3+json");
+        headers.set("User-Agent", "README-Generator");
+
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         // Get repository contents
@@ -139,6 +147,9 @@ public class GithubService {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
+        headers.set("Accept", "application/vnd.github.v3+json");
+        headers.set("User-Agent", "README-Generator");
+
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         String url = String.format("https://api.github.com/repos/%s/%s/contents/%s", ownerName, repoName, filePath);
