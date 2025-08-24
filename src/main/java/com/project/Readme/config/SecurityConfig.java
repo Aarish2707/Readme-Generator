@@ -1,4 +1,4 @@
-package com.project.Readme.config;
+//package com.project.Readme.config;
 //
 //import com.project.Readme.security.JwtAuthenticationFilter;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +25,25 @@ package com.project.Readme.config;
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        http
-//            .cors(cors -> cors.configurationSource(corsConfigurationSource))
-//            .csrf(AbstractHttpConfigurer::disable)
-//            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//            .headers(headers -> headers
-//                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-//                    .contentTypeOptions(content -> {})
-//                    .httpStrictTransportSecurity(hsts -> hsts
-//                            .maxAgeInSeconds(31536000)
-//                            .includeSubDomains(true))
-//                    .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-//            )
-//            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-//            .authorizeHttpRequests(auth -> auth
-//                    .anyRequest().permitAll()
-//            );
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .headers(headers -> headers
+//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+//                        .contentTypeOptions(content -> {})
+//                        .httpStrictTransportSecurity(hsts -> hsts
+//                                .maxAgeInSeconds(31536000)
+//                                .includeSubDomains(true))
+//                        .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+//                )
+//                .authorizeHttpRequests(auth -> auth
+//                        .anyRequest().permitAll()
+//                );
 //        return http.build();
 //    }
 //}
+
+package com.project.Readme.config;
 
 import com.project.Readme.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,19 +82,8 @@ public class SecurityConfig {
                         .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/github",
-                                "/api/auth/callback",
-                                "/",
-                                "/index.html",
-                                "/assets/**",
-                                "/dashboard",
-                                "/login"
-                        ).permitAll()
                         .anyRequest().permitAll()
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+                );
         return http.build();
     }
 }

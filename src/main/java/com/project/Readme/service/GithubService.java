@@ -42,8 +42,6 @@ public class GithubService {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(accessToken);
-            headers.set("Accept", "application/vnd.github.v3+json");
-            headers.set("User-Agent", "README-Generator");
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -71,29 +69,26 @@ public class GithubService {
 
     public Map<String, Object> getRepositoryDetails(String jwtToken, String ownerName, String repoName) {
         String accessToken = getGithubAccessToken(jwtToken);
-        
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
-        headers.set("Accept", "application/vnd.github.v3+json");
-        headers.set("User-Agent", "README-Generator");
-
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         String url = String.format("https://api.github.com/repos/%s/%s", ownerName, repoName);
-        
+
         ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
         return response.getBody();
     }
 
     public String analyzeProjectStructure(String jwtToken, String ownerName, String repoName) {
         StringBuilder analysis = new StringBuilder();
-        
+
         // Check for common config files
-        String[] configFiles = {"package.json", "pom.xml", "requirements.txt", "Gemfile", 
-                               "composer.json", "go.mod", "Cargo.toml", ".env.example", 
-                               "docker-compose.yml", "Dockerfile"};
-        
+        String[] configFiles = {"package.json", "pom.xml", "requirements.txt", "Gemfile",
+                "composer.json", "go.mod", "Cargo.toml", ".env.example",
+                "docker-compose.yml", "Dockerfile"};
+
         for (String file : configFiles) {
             String content = getFileContent(jwtToken, ownerName, repoName, file);
             if (content != null) {
@@ -102,31 +97,28 @@ public class GithubService {
                 analysis.append("\n");
             }
         }
-        
+
         return analysis.toString();
     }
 
     public String getRepositoryFiles(String jwtToken, String ownerName, String repoName) {
         String accessToken = getGithubAccessToken(jwtToken);
-        
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
-        headers.set("Accept", "application/vnd.github.v3+json");
-        headers.set("User-Agent", "README-Generator");
-
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         // Get repository contents
         String url = String.format("https://api.github.com/repos/%s/%s/contents", ownerName, repoName);
-        
+
         try {
             ResponseEntity<Map[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map[].class);
             Map[] files = response.getBody();
-            
+
             StringBuilder context = new StringBuilder();
             context.append("Repository Structure:\n");
-            
+
             if (files != null) {
                 for (Map<String, Object> file : files) {
                     String fileName = (String) file.get("name");
@@ -134,7 +126,7 @@ public class GithubService {
                     context.append("- ").append(fileName).append(" (").append(fileType).append(")\n");
                 }
             }
-            
+
             return context.toString();
         } catch (Exception e) {
             return "Unable to fetch repository structure";
@@ -143,21 +135,18 @@ public class GithubService {
 
     public String getFileContent(String jwtToken, String ownerName, String repoName, String filePath) {
         String accessToken = getGithubAccessToken(jwtToken);
-        
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
-        headers.set("Accept", "application/vnd.github.v3+json");
-        headers.set("User-Agent", "README-Generator");
-
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         String url = String.format("https://api.github.com/repos/%s/%s/contents/%s", ownerName, repoName, filePath);
-        
+
         try {
             ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
             Map<String, Object> fileData = response.getBody();
-            
+
             if (fileData != null && "file".equals(fileData.get("type"))) {
                 String content = (String) fileData.get("content");
                 // Decode base64 content
@@ -166,7 +155,7 @@ public class GithubService {
         } catch (Exception e) {
             // File not found or error
         }
-        
+
         return null;
     }
 }

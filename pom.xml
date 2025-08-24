@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -20,13 +20,13 @@
 		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
-<!--	<repositories>-->
-<!--		<repository>-->
-<!--			<id>google-maven</id>-->
-<!--			<name>Google Maven Repository</name>-->
-<!--			<url>https://maven.google.com/</url>-->
-<!--		</repository>-->
-<!--	</repositories>-->
+	<!--	<repositories>-->
+	<!--		<repository>-->
+	<!--			<id>google-maven</id>-->
+	<!--			<name>Google Maven Repository</name>-->
+	<!--			<url>https://maven.google.com/</url>-->
+	<!--		</repository>-->
+	<!--	</repositories>-->
 
 	<dependencies>
 		<!-- MongoDB -->
@@ -53,7 +53,7 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-			<!--web flux-->
+		<!--web flux-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
@@ -64,12 +64,6 @@
 			<groupId>com.google.genai</groupId>
 			<artifactId>google-genai</artifactId>
 			<version>1.9.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!-- Spring Test -->
@@ -109,13 +103,6 @@
 			<groupId>dev.shreyaspatil.generativeai</groupId>
 			<artifactId>generativeai-google-jvm</artifactId>
 			<version>0.9.0-1.0.1</version>
-		</dependency>
-
-		<!-- Dotenv for loading .env files -->
-		<dependency>
-			<groupId>io.github.cdimascio</groupId>
-			<artifactId>dotenv-java</artifactId>
-			<version>3.0.0</version>
 		</dependency>
 
 
