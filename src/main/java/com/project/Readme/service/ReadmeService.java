@@ -105,8 +105,8 @@ public class ReadmeService {
             throw new RuntimeException("Cannot generate the repository as you don't have the access to the repository.");
         }
 
-        // Fetch repository data from GitHub API
-        String repoAnalysis = fetchRepositoryAnalysis(ownerName, repoName);
+        // Fetch repository data from GitHub API with user authentication
+        String repoAnalysis = fetchRepositoryAnalysisWithAuth(ownerName, repoName, githubId);
 
         // Generate README using AI
         String avatarUrl = "https://github.com/" + ownerName + ".png";
@@ -117,39 +117,102 @@ public class ReadmeService {
         return readmeRepository.save(readmeFile);
     }
 
-    private String fetchRepositoryAnalysis(String owner, String repo) {
-        try {
-            // Fetch repository details
-            String repoData = fetchGitHubData("https://api.github.com/repos/" + owner + "/" + repo);
 
-            // Fetch repository languages
-            String languagesData = fetchGitHubData("https://api.github.com/repos/" + owner + "/" + repo + "/languages");
 
-            // Fetch repository contents (to detect package files)
-            String contentsData = fetchGitHubData("https://api.github.com/repos/" + owner + "/" + repo + "/contents");
-
-            return buildAnalysis(repoData, languagesData, contentsData, owner, repo);
-        } catch (Exception e) {
-            // Fallback to basic analysis
-            return "Repository: " + repo + "\nOwner: " + owner;
-        }
-    }
-
-    private String fetchGitHubData(String url) {
+    private String fetchAuthenticatedGitHubData(String url, String accessToken) {
         try {
             org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
             headers.set("Accept", "application/vnd.github.v3+json");
             headers.set("User-Agent", "README-Generator");
+            
+            if (accessToken != null && !accessToken.isEmpty()) {
+                headers.setBearerAuth(accessToken);
+            }
 
             org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
             return restTemplate.exchange(url, org.springframework.http.HttpMethod.GET, entity, String.class).getBody();
         } catch (Exception e) {
+            System.err.println("Error fetching GitHub data from " + url + ": " + e.getMessage());
             return "{}";
         }
     }
+    
+    private String fetchConfigFiles(String owner, String repo, String accessToken) {
+        StringBuilder configAnalysis = new StringBuilder();
+        String[] configFiles = {"package.json", "pom.xml", "build.gradle", "requirements.txt", 
+                               "Dockerfile", "docker-compose.yml", ".env.example", "application.yml", "application.properties"};
+        
+        for (String fileName : configFiles) {
+            try {
+                String fileContent = fetchFileContent(owner, repo, fileName, accessToken);
+                if (fileContent != null && !fileContent.equals("{}")) {
+                    configAnalysis.append("\n=== ").append(fileName).append(" ===\n");
+                    // Limit content to prevent overwhelming the AI
+                    configAnalysis.append(fileContent.length() > 2000 ? 
+                        fileContent.substring(0, 2000) + "..." : fileContent);
+                    configAnalysis.append("\n");
+                }
+            } catch (Exception e) {
+                // File doesn't exist, continue
+            }
+        }
+        
+        return configAnalysis.toString();
+    }
+    
+    private String fetchFileContent(String owner, String repo, String fileName, String accessToken) {
+        try {
+            String url = "https://api.github.com/repos/" + owner + "/" + repo + "/contents/" + fileName;
+            String response = fetchAuthenticatedGitHubData(url, accessToken);
+            
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode fileNode = mapper.readTree(response);
+            
+            if (fileNode.has("content") && "file".equals(fileNode.path("type").asText())) {
+                String encodedContent = fileNode.path("content").asText();
+                return new String(java.util.Base64.getDecoder().decode(encodedContent.replaceAll("\\s", "")));
+            }
+        } catch (Exception e) {
+            // File not found or error
+        }
+        return null;
+    }
+    
+    private String fetchRepositoryAnalysisWithAuth(String owner, String repo, String githubId) {
+        try {
+            // Get user's access token for authenticated requests
+            com.project.Readme.model.User user = userRepository.findByGithubId(githubId).orElse(null);
+            String accessToken = user != null ? user.getAccessToken() : null;
+            
+            // Fetch repository details with authentication
+            String repoData = fetchAuthenticatedGitHubData("https://api.github.com/repos/" + owner + "/" + repo, accessToken);
+            
+            // Fetch repository languages
+            String languagesData = fetchAuthenticatedGitHubData("https://api.github.com/repos/" + owner + "/" + repo + "/languages", accessToken);
+            
+            // Fetch repository contents
+            String contentsData = fetchAuthenticatedGitHubData("https://api.github.com/repos/" + owner + "/" + repo + "/contents", accessToken);
+            
+            // Fetch specific config files for better analysis
+            String configAnalysis = fetchConfigFiles(owner, repo, accessToken);
+            
+            String analysis = buildEnhancedAnalysis(repoData, languagesData, contentsData, configAnalysis, owner, repo);
+            
+            // Debug logging
+            System.out.println("=== REPOSITORY ANALYSIS FOR AI ===");
+            System.out.println(analysis);
+            System.out.println("=== END ANALYSIS ===");
+            
+            return analysis;
+        } catch (Exception e) {
+            System.err.println("Error fetching repository analysis: " + e.getMessage());
+            e.printStackTrace();
+            return "Repository: " + repo + "\nOwner: " + owner + "\nError: Unable to fetch detailed analysis - " + e.getMessage();
+        }
+    }
 
-    private String buildAnalysis(String repoData, String languagesData, String contentsData, String owner, String repo) {
+    private String buildEnhancedAnalysis(String repoData, String languagesData, String contentsData, String configAnalysis, String owner, String repo) {
         StringBuilder analysis = new StringBuilder();
 
         try {
@@ -197,8 +260,13 @@ public class ReadmeService {
                 }
             }
 
+            // Add configuration files analysis
+            analysis.append("\n=== CONFIGURATION FILES ANALYSIS ===\n");
+            analysis.append(configAnalysis);
+            
         } catch (Exception e) {
             analysis.append("Repository: ").append(repo).append("\nOwner: ").append(owner);
+            analysis.append("\nError parsing repository data: ").append(e.getMessage());
         }
 
         return analysis.toString();
