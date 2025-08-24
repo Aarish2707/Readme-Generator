@@ -9,6 +9,11 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI}
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+    com.project.Readme: DEBUG
   jpa:
     hibernate:
       ddl-auto: update
