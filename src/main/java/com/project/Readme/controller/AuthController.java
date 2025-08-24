@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = {"http://localhost:8080", "https://readme-generator-whj0.onrender.com"})
 public class AuthController {
 
     @Autowired
@@ -34,8 +34,12 @@ public class AuthController {
 
     @GetMapping("/github")
     public RedirectView githubAuth() {
-        String redirectUri = baseUrl + "api/auth/callback";
+        String cleanBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+        String redirectUri = cleanBaseUrl + "api/auth/callback";
         String scope = "user:email,repo";
+        
+        System.out.println("Base URL: " + baseUrl);
+        System.out.println("Redirect URI: " + redirectUri);
 
         String githubAuthUrl = "https://github.com/login/oauth/authorize" +
                 "?client_id=" + clientId +
