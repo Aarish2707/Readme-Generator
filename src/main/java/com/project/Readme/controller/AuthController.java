@@ -29,9 +29,12 @@ public class AuthController {
     @Value("${github.client.secret:your_github_client_secret}")
     private String clientSecret;
 
+    @Value("${BASE_URL:http://localhost:8080/}")
+    private String baseUrl;
+
     @GetMapping("/github")
     public RedirectView githubAuth() {
-        String redirectUri = "http://localhost:8080/api/auth/callback";
+        String redirectUri = baseUrl + "api/auth/callback";
         String scope = "user:email,repo";
 
         String githubAuthUrl = "https://github.com/login/oauth/authorize" +
@@ -76,7 +79,7 @@ public class AuthController {
             // Generate JWT token
             String jwtToken = jwtService.generateToken(githubId);
 
-            String redirectUrl = "http://localhost:8080/dashboard?login=" + login +
+            String redirectUrl = baseUrl + "dashboard?login=" + login +
                     "&name=" + name + "&avatar=" + avatarUrl + "&githubId=" + githubId + "&token=" + jwtToken;
             System.out.println("Redirecting to: " + redirectUrl);
 
@@ -84,7 +87,7 @@ public class AuthController {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error in callback: " + e.getMessage());
-            return new RedirectView("http://localhost:8080/login?error=" + e.getMessage());
+            return new RedirectView(baseUrl + "login?error=" + e.getMessage());
         }
     }
 
