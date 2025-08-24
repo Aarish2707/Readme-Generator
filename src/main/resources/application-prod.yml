@@ -9,16 +9,16 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI}
-
-logging:
-  level:
-    org.springframework.data.mongodb: DEBUG
-    com.project.Readme: DEBUG
   jpa:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+    com.project.Readme: DEBUG
 
 github:
   client:
